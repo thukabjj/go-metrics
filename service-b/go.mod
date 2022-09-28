@@ -1,16 +1,25 @@
-module github.com/thukabjj/go-metric
+module github.com/thukabjj/go-metric/service-a
 
 go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/prometheus/client_golang v1.13.0
+	github.com/sirupsen/logrus v1.6.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.36.1
+	go.opentelemetry.io/contrib/propagators/b3 v1.10.0
+	go.opentelemetry.io/otel/exporters/jaeger v1.10.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.10.0
 )
+
+require github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
@@ -27,6 +36,9 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
+	go.opentelemetry.io/otel v1.10.0
+	go.opentelemetry.io/otel/sdk v1.10.0
+	go.opentelemetry.io/otel/trace v1.10.0
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
