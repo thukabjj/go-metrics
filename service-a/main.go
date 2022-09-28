@@ -5,11 +5,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/thukabjj/go-metric/service-b/handler"
 	"github.com/thukabjj/go-metric/service-b/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
@@ -50,6 +52,9 @@ func main() {
 			log.Printf("Error shutting down tracer provider: %v", err)
 		}
 	}()
+	client := http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
 
 	prometheus.MustRegister(reqCountMetrics)
 
@@ -57,7 +62,8 @@ func main() {
 	r.Use(otelgin.Middleware(SERVICE_NAME), middleware.CounterRequestMetrics(reqCountMetrics))
 
 	ping := handler.Ping{
-		Tracer: tracer,
+		Tracer:     tracer,
+		HttpClient: client,
 	}
 
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))

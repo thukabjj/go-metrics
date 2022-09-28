@@ -2,21 +2,24 @@ package handler
 
 import (
 	"context"
+	"net/http"
+
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/trace"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Pong struct {
-	Tracer trace.Tracer
+	Tracer     trace.Tracer
+	HttpClient http.Client
 }
 
 func (h Pong) Pong(ctx *gin.Context) {
 	log.WithContext(ctx.Request.Context()).Info("Request")
-	_, span := h.Tracer.Start(ctx.Request.Context(), "Pong")
-	pongResponse := h.getPongFromRepository(ctx.Request.Context())
+	ctxReq := ctx.Request.Context()
+	ctxChild, span := h.Tracer.Start(ctxReq, "PongHandler")
+	pongResponse := h.getPongFromRepository(ctxChild)
 	defer span.End()
 	ctx.JSON(http.StatusOK, gin.H{"status": pongResponse})
 }

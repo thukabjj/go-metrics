@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/thukabjj/go-metric/service-a/handler"
 	"github.com/thukabjj/go-metric/service-a/middleware"
@@ -11,13 +12,14 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
 
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"os"
 )
 
 const (
