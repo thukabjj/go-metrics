@@ -12,6 +12,12 @@ services:
       - 8081:8081
     environment:
       - JAEGER_AGENT_HOST=http://jaeger:14268/api/traces
+  java-service-c:
+    build: ./service-c/.
+    ports:
+      - 8083:8083
+    environment:
+      - JAEGER_AGENT_HOST=http://jaeger:14268/api/traces
   prometheus:
     image: prom/prometheus:latest
     volumes:
@@ -37,15 +43,19 @@ services:
     ports:
       - "14268:14268"   # jaeger-collector HTTP server (tracer provider)
       - "16686:16686"
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
+    # Collector
+  otel-collector:
+    image: otel/opentelemetry-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./infra/volume/portainer-data:/data
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - 9000:9000
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP http receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - jaeger

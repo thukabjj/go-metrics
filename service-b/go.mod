@@ -9,14 +9,9 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.36.1
 	go.opentelemetry.io/contrib/propagators/b3 v1.10.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.10.0
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.10.0
 )
 
-require (
-	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
-	go.opentelemetry.io/otel/metric v0.32.1 // indirect
-)
+require github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -40,7 +35,6 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.1
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/sdk v1.10.0
 	go.opentelemetry.io/otel/trace v1.10.0
