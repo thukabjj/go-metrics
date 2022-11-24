@@ -2,16 +2,20 @@ package main
 
 import (
 	"context"
+	"net/http"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/thukabjj/go-metric/service-b/handler"
 	"github.com/thukabjj/go-metric/service-b/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
-	"net/http"
+	"google.golang.org/grpc"
+
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
@@ -19,7 +23,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"os"
 )
 
 const (
@@ -73,12 +76,21 @@ func main() {
 }
 
 func initTracer() (*sdktrace.TracerProvider, error) {
-	// Create the Jaeger exporter
-	jaegerHost := getEnv("JAEGER_AGENT_HOST", "http://jaeger:14268/api/traces")
-	jaegerExporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerHost)))
+	log.Println("Initialising tracer")
+	log.Println("Connecting to GRPC endpoint...")
+
+	exporter, err := otlptracegrpc.New(
+		context.Background(),
+		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithEndpoint("otel-collector:4317"),
+		otlptracegrpc.WithDialOption(grpc.WithBlock()))
+
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Connection established.")
+
 	resources := resource.NewWithAttributes(
 		semconv.SchemaURL,
 		semconv.ServiceNameKey.String(SERVICE_NAME),
@@ -88,10 +100,10 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 	)
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(jaegerExporter),
-		//sdktrace.WithBatcher(exporter),
+		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(resources),
 	)
+
 	otel.SetTracerProvider(tp)
 	p := b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader | b3.B3SingleHeader))
 
@@ -119,4 +131,10 @@ func getEnv(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+func handleErr(err error, message string) {
+	if err != nil {
+		log.Fatalf("%s: %v", message, err)
+	}
 }
